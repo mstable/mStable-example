@@ -7,14 +7,16 @@ An [introduction to the mStable][1] protocol is available that shows what mStabl
 By walking through this repo you'll be able to 
 
 * Write a basic smart contract that integrates with mStable
-* Deploy the contract to Ropsten
 * Mint, deposit and redeem mUSD from your application
+* Perform a swap using the mStable protocol
 
 ## Prerequsities
 
-* Node.js  
+* Node.js v10.22.0 (you may wish to use [nvm][6])
 
 ## Installation
+
+The mStable protocol contracts are available as an npm module that may be included in your projects. 
 
 ### Using npm
 
@@ -24,11 +26,9 @@ By walking through this repo you'll be able to
 
     yarn add @mstable/protocol --dev
 
-This will make the contracts that make up the mStable protocol available to your application. 
-
 ### Why mStable?
 
-If your application uses USDT, USDC, TUSD or DAI you can use mStable to earn a
+If your application uses `USDT`, `USDC`, `TUSD` or `DAI` you can use mStable to earn a
 yield on your stablecoins. Contracts that hold stablecoins can earn a yield for
 end users rather than simply leave them on the contract. mUSD represents a
 basket of underlying stablecoins that are collateralised by MTA. You can read
@@ -94,7 +94,7 @@ contract MStable {
 
 ### Depositing mUSD
 
-Once you have minted mUSD a contract may deposit into the SAVE contract to begin earning yield. This example assumes that the mUSD is on the contract. After calling the external `deposit` function, mUSD will be deposited into the SAVE contract and begin earning yield. 
+Once you have minted mUSD a contract may deposit into the SAVE contract to begin earning yield. This example assumes that mUSD is on the contract. After calling the external `deposit` function, mUSD will be deposited into the SAVE contract and begin earning yield. 
 
 ```
 //SPDX-License-Identifier: Unlicense
@@ -199,3 +199,4 @@ contract MStable {
 [3]: https://docs.mstable.org/protocol/security#auditing
 [4]: https://docs.mstable.org/developers/developers
 [5]: https://github.com/mstable/mStable-contracts
+[6]: https://github.com/nvm-sh/nvm
