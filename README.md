@@ -56,7 +56,7 @@ In this following code examples you will learn how to integrate the mStable prot
 
 Note that the mStable contracts are compiled against `0.5.16` of solidity.
 
-** These examples showcase how to integrate and are not considered safe. Your application should build in relevant access control and safety checks **
+**These examples showcase how to integrate and are not considered safe. Your application should build in relevant access control and safety checks**
 
 ### Minting mUSD
 
