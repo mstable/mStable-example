@@ -79,9 +79,9 @@ contract MStable {
     }
 
     function mint(
-            address _bAsset,
-            uint _bAssetQuanity
-            ) external returns (uint massetMinted) {
+        address _bAsset,
+        uint _bAssetQuanity
+    ) external returns (uint massetMinted) {
         IERC20(_bAsset).safeApprove(massetContract, 0);
         IERC20(_bAsset).safeApprove(massetContract, uint256(-1));
         return IMasset(massetContract).mint(_bAsset, _bAssetQuanity);
