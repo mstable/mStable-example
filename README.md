@@ -52,15 +52,17 @@ Some potential applications that can be created using the mStable protocol are
 
 ### Integrating mStable
 
-In this example you will learn how to integrate the mStable protocol. This represents a basic integration and more advanced developers may wish to go straight to the [contract documentation][4] or the [smart contracts on Github][5]. 
+In this following code examples you will learn how to integrate the mStable protocol. This represents a basic integration and more advanced developers may wish to go straight to the [contract documentation][4] or the [smart contracts on Github][5]. 
 
 Note that the mStable contracts are compiled against `0.5.16` of solidity.
 
-First include the `IMasset` interface so we can mint mUSD. 
+** These examples showcase how to integrate and are not considered safe. Your application should build in relevant access control and safety checks **
 
-### Minting
+### Minting mUSD
 
 Minting takes one or more of the supported tokens and issues mUSD. The following is an example that shows how you can add minting mUSD to a smart contract. Note that this assumes there are some supported stablecoin tokens held on the contract. 
+
+Suppose we are depositing USDC in this example. We first send USDC to the contract and then call the external `mint` function with the address of the USDC contract and the amount to send. The transaction will return the equivalent amount of mUSD.
 
 ```
 //SPDX-License-Identifier: Unlicense
@@ -88,6 +90,108 @@ contract MStable {
     }
 }
 
+```
+
+### Depositing mUSD
+
+Once you have minted mUSD a contract may deposit into the SAVE contract to begin earning yield. This example assumes that the mUSD is on the contract. After calling the external `deposit` function, mUSD will be deposited into the SAVE contract and begin earning yield. 
+
+```
+//SPDX-License-Identifier: Unlicense
+pragma solidity ^0.5.16;
+
+import { IMasset } from "@mstable/protocol/contracts/interfaces/IMasset.sol";
+import { ISavingsContract } from "@mstable/protocol/contracts/interfaces/ISavingsContract.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { SafeERC20 }  from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+
+contract MStable {
+    using SafeERC20 for IERC20;
+    address public massetContract;
+    address public savingsContract;
+
+    constructor(
+        address _massetContract,
+        address _savingsContract
+    ) public {
+        massetContract = _massetContract;
+        savingsContract = _savingsContract;
+    }
+
+    function deposit(
+        uint _amount
+    ) external returns (uint256 creditIssued) {
+        IERC20(massetContract).safeApprove(savingsContract, 0);
+        IERC20(massetContract).safeApprove(savingsContract, uint256(-1));
+        return ISavingsContract(savingsContract).depositSavings(_amount);
+    }
+
+}
+```
+### Withdrawing mUSD
+
+mUSD may be withdrawn from the SAVE contract at any point. This example assumes that the calling contract has deposited into SAVE. Calling the external `withdraw` function returns mUSD from the SAVE contract to the calling contract. 
+
+```
+//SPDX-License-Identifier: Unlicense
+pragma solidity ^0.5.16;
+
+import { IMasset } from "@mstable/protocol/contracts/interfaces/IMasset.sol";
+import { ISavingsContract } from "@mstable/protocol/contracts/interfaces/ISavingsContract.sol";
+
+contract MStable {
+    address public massetContract;
+    address public savingsContract;
+
+    constructor(
+        address _massetContract,
+        address _savingsContract
+    ) public {
+        massetContract = _massetContract;
+        savingsContract = _savingsContract;
+    }
+
+    function withdraw(
+        uint _amount
+    ) external returns (uint256 massetReturned) {
+        return ISavingsContract(savingsContract).redeem(_amount);
+    }
+}
+```
+
+### Redeeming from mUSD
+
+Underlying assets may be redeemed from mUSD as the original asset that was deposited or as a mix of any of the underlying assets available in the basket. In this example it is assumed that the contract holds some mUSD and wishes to redeem the underlying stablecoins. 
+
+By calling the external `redeem` the caller may redeem an underlying asset. After the transaction completes mUSD will be burned and the underlying asset will be returned to the calling contract. 
+
+```
+//SPDX-License-Identifier: Unlicense
+pragma solidity ^0.5.16;
+
+import { IMasset } from "@mstable/protocol/contracts/interfaces/IMasset.sol";
+import { ISavingsContract } from "@mstable/protocol/contracts/interfaces/ISavingsContract.sol";
+
+contract MStable {
+    address public massetContract;
+    address public savingsContract;
+
+    constructor(
+        address _massetContract,
+        address _savingsContract
+    ) public {
+        massetContract = _massetContract;
+        savingsContract = _savingsContract;
+    }
+
+    function redeem(
+        address _bAsset,
+        uint _bAssetQuanity
+    ) external returns (uint256 massetRedeemed) {
+        return IMasset(massetContract).redeem(_bAsset, _bAssetQuanity);
+    }
+
+}
 ```
 
 [1]: https://docs.mstable.org/developers/introduction
