@@ -1,0 +1,33 @@
+import { BuidlerConfig, usePlugin } from "@nomiclabs/buidler/config";
+
+usePlugin("@nomiclabs/buidler-waffle");
+usePlugin("buidler-typechain");
+usePlugin("solidity-coverage");
+usePlugin("@nomiclabs/buidler-etherscan");
+
+const config: BuidlerConfig = {
+  defaultNetwork: "buidlerevm",
+  solc: {
+    version: "0.5.16"
+  },
+  etherscan: {
+    apiKey: "YOUR_ETHERSCAN_API_KEY"
+  },
+  networks: {
+    coverage: {
+      url: "http://127.0.0.1:8555" // Coverage launches its own ganache-cli client
+    },
+    ropsten: {
+      url: "https://ropsten.infura.io/v3/YOUR_INFURA_KEY",
+      accounts: [
+        "0xYOUR_PRIVATE_KEY"
+      ]
+    }
+  },
+  typechain: {
+    outDir: "typechain",
+    target: "ethers-v4"
+  }
+};
+
+export default config;
