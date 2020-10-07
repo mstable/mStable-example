@@ -8,6 +8,8 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 }  from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { Ownable }  from "@openzeppelin/contracts/ownership/Ownable.sol";
 
+// Allows participants to stake mUSD and have the
+// interest from SAVE be distributed to a specified beneficiary
 contract PoolWithMStable is Ownable {
 
     using SafeERC20 for IERC20;
@@ -41,11 +43,15 @@ contract PoolWithMStable is Ownable {
         mUSD.safeApprove(address(save), uint256(-1));
     }
 
+    // Stake an amount of mUSD and deposit into SAVE
     function stakeGift(
         uint256 _amount
     )
         external
     {
+        // Either we are depositing mUSD or we can mint as follows
+        // IMasset(_mUSD).mint(<bAsset>, <bAssetQuanity>);
+
         mUSD.safeTransferFrom(msg.sender, address(this), _amount);
 
         save.depositSavings(_amount);
@@ -56,6 +62,7 @@ contract PoolWithMStable is Ownable {
         emit GiftStaked(msg.sender, _amount);
     }
 
+    // Withdraw the staked mUSD
     function withdrawGift(
         uint256 _amount
     )
@@ -71,11 +78,16 @@ contract PoolWithMStable is Ownable {
         uint256 creditsToRedeem = helper.getSaveRedeemInput(save, _amount);
         save.redeem(creditsToRedeem);
 
+        // Either we return the mUSD or we could redeem into something
+        // bAsset = helper.getRedeemBasset();
+        // IMasset(mUSD).redeem(<bAsset>, <bAssetQuanity>);
+
         mUSD.transfer(msg.sender, _amount);
 
         emit GiftWithdrawn(msg.sender, _amount);
     }
 
+    // Distribute any of the accrued interest to the beneficiary
     function collectInterest() external {
         uint256 currentBalance = helper.getSaveBalance(save, address(this));
         uint256 delta = currentBalance - totalGifts;
